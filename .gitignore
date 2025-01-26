@@ -1,0 +1,7 @@
+# Local
+.archive/
+.vscode/
+
+# Binaries
+matrix
+matrix++
