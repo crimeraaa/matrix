@@ -5,3 +5,6 @@
 # Binaries
 matrix
 matrix++
+
+# Lua
+matrix.so

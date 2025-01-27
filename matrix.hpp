@@ -41,7 +41,7 @@ struct Matrix {
     // Matrix addition. By virtue of template deduction, this will cause compile
     // errors if `other` is not of the same dimensions as `this`.
     Matrix<Rows, Cols>
-    operator+(const Matrix<Rows, Cols> &other)
+    operator+(const Matrix<Rows, Cols> &other) const noexcept
     {
         Matrix<Rows, Cols> C;
         matrix_add(C.data, this->data, other.data, this->rows, this->cols);
@@ -51,7 +51,7 @@ struct Matrix {
     // Matrix multiplication. By virtue of template deduction, this will cause
     // compile errors if `other` does not have complementary dimensions to `this`.
     Matrix<Rows, Rows>
-    operator*(const Matrix<Cols, Rows> &other)
+    operator*(const Matrix<Cols, Rows> &other) const noexcept
     {
         Matrix<Rows, Rows> C;
         matrix_mul(C.data, this->data, other.data, this->rows, this->cols);

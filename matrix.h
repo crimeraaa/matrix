@@ -1,37 +1,19 @@
-#ifndef MATRIX_H
-#define MATRIX_H
+#ifndef LUA_MATRIX_H
+#define LUA_MATRIX_H
 
+#include "lua.h"
+#include "lauxlib.h"
+
+#define cast(T)     (T)
+
+#define MT_NAME     "Matrix.Matrix"
+#define LIB_NAME    "matrix"
+
+// An `m` by `n` matrix.
 typedef struct {
-    int *data; /* Heap-allocated 1D integer array. */
-    int  rows; /* Number of rows this matrix holds. */
-    int  cols; /* Number of columns this matrix holds. */
+    int rows; // Dimension `m`. Once set, must not be changed!
+    int cols; // Dimension `n`. Once set, must not be changed!
+    lua_Number data[]; // Variable length 1D array. Treat this as row-major.
 } Matrix;
 
-typedef enum {
-    MATRIX_OK, 
-    MATRIX_ERRDIM, /* matrices `A` and `B` have differing #rows or #columns. */
-    MATRIX_ERRMEM, /* Failed to allocate memory for a Matrix instance. */
-} Matrix_Error;
-
-Matrix
-matrix_make(int rows, int cols);
-
-void
-matrix_delete(Matrix *A);
-
-void
-matrix_print(const Matrix *A);
-
-int
-matrix_at(const Matrix *A, int i, int j);
-
-int *
-matrix_poke(Matrix *A, int i, int j);
-
-Matrix_Error
-matrix_add(const Matrix *A, const Matrix *B, Matrix *C);
-
-Matrix_Error
-matrix_mul(const Matrix *A, const Matrix *B, Matrix *C);
-
-#endif /* MATRIX_H */
+#endif // LUA_MATRIX_H
