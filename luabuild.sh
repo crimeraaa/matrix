@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 
 CC=clang
-CC_FLAGS='-Wall -Wextra -std=c17'
+CC_FLAGS='-Wall -Wextra -Wconversion -std=c17 -O1'
 
 LIB_NAME=matrix
 

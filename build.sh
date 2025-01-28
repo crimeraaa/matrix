@@ -10,4 +10,3 @@ CXX_FLAGS='-Wall -Wextra -std=c++17 -g -fsanitize=address'
 set -x
 # $CC $CC_FLAGS -o matrix matrix.c
 $CXX $CXX_FLAGS -o matrix++ matrix.cpp
- 
