@@ -28,10 +28,10 @@ add_test()
     println("=== ADD ===");
     a.print();
     b.print();
-    
+
     println("a + b");
     (a + b).print();
-    
+
     println("b + a");
     (b + a).print();
 }
@@ -48,10 +48,10 @@ mul_test1()
     println("=== MUL ===");
     a.print();
     b.print();
-    
+
     println("a * b");
     (a * b).print();
-    
+
     println("b * a");
     (b * a).print();
 }
@@ -68,10 +68,10 @@ mul_test2()
     println("=== MUL ===");
     a.print();
     b.print();
-    
+
     println("a * b");
     (a * b).print();
-    
+
     println("b * a");
     (b * a).print();
 }

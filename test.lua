@@ -1,7 +1,19 @@
 matrix = require "matrix"
 a = matrix.new(3, 2)
 b = matrix.new{1,2,3,4}
-c = matrix.new {{1,2,3}, {4,5,6}}
+
+-- 2x3
+c = matrix.new {
+    {1,2,3},
+    {4,5,6},
+}
+
+-- 3x2
+d = matrix.new {
+    {1,2},
+    {3,4},
+    {5,6},
+}
 
 local acc = 1
 for i = 1, a.rows do
@@ -11,15 +23,14 @@ for i = 1, a.rows do
     end
 end
 
-print(a)
-print(b)
-print(c)
+print('a:', a)
+print('b:', b)
+print('c:', c)
+print('d:', d)
 
-local function bad()
+print(pcall(function()
     local d = matrix.new {{1,2,3}, {4,5,6,7}}
     print(d)
-end
-
-print(pcall(bad))
+end))
 -- a:set(1, 1, 4)
 -- print(a, a:rows(), a:cols())
