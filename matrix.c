@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "slice.h"
 #include "matrix.h"
@@ -65,11 +66,7 @@ matrix_new_zero(lua_State *L, int rows, int cols)
 {
     // Stack: [ rows, cols, self ]
     Matrix *self = matrix_new(L, rows, cols);
-    for (int i = 0; i < self->rows; i++) {
-        for (int j = 0; j < self->cols; j++) {
-            *matrix_poke(self, i, j) = 0;
-        }
-    }
+    memset(self->data, 0, cast(size_t)(rows * cols) * sizeof(self->data[0]));
     return self;
 }
 
@@ -234,7 +231,6 @@ mt_tostring(lua_State *L)
         for (int j = 0; j < matrix->cols; j++) {
             lua_pushnumber(L, matrix_peek(matrix, i, j));
             luaL_addvalue(&buffer);
-            lua_pop(L, 1);
             if (j < matrix->cols - 1) {
                 luaL_addstring(&buffer, ", ");
             }
@@ -309,24 +305,26 @@ matrix_mt[] = {
     {NULL, NULL},
 };
 
-// () -> ( Lib_Matrix )
+// ( "matrix" ) -> ( Lib_Matrix )
 // https://www.lua.org/pil/26.2.html
 extern int
 luaopen_matrix(lua_State *L)
 {
-    // Ensure type-safety when converting userdata
-    // https://www.lua.org/pil/28.2.html
-    luaL_newmetatable(L, MATRIX_MTNAME); // [ mt ]
-
-    // Here, when `libname` is `NULL`, no new table is created.
-    // We assume the package table is on the stack.
-    luaL_register(L, NULL, matrix_mt); // [ mt ]
-
-    // [ mt, slice ]
+    // [ "matrix", slice ]
     luaopen_slice(L);
 
+
+    // Ensure type-safety when converting userdata
+    // https://www.lua.org/pil/28.2.html
+    // [ "matrix", slice, mt ]
+    luaL_newmetatable(L, MATRIX_MTNAME);
+
+    // Here, when `libname` is `NULL`, no new table is created.
+    // We assume the package table is on the top of the stack.
+    luaL_register(L, NULL, matrix_mt);
+
     // Create and push a new table with `MATRIX_LIBNAME`.
-    // [ mt, slice, matrix ]
+    // [ "matrix", slice, mt, matrix ]
     luaL_register(L, MATRIX_LIBNAME, matrix_lib);
     return 1;
 }

@@ -31,7 +31,13 @@ method_get(lua_State *L)
 {
     Slice *self  = check_self(L);
     int    index = luaL_checkint(L, 2);
-    lua_pushnumber(L, slice_peek(self, index));
+    if (index < 0) {
+        index = self->len + index + 1;
+    }
+    if (1 <= index && index <= self->len) {
+        lua_pushnumber(L, slice_peek(self, index - 1));
+    }
+    luaL_error(L, "Bad index: %d (self.len=%d)", index, self->len);
     return 1;
 }
 
@@ -51,6 +57,25 @@ slice_peek(const Slice *self, int index)
     return *slice_poke(cast(Slice *)self, index);
 }
 
+// Convert a 1-based relative Lua index to an absolute C index.
+static int
+resolve_index(lua_State *L, const Slice *self, int index)
+{
+    int len      = self->len;
+    int absindex = index;
+    if (absindex < 0) {
+        absindex = len + absindex;
+    } else {
+        absindex -= 1;
+    }
+    if (0 <= absindex && absindex < len) {
+        return absindex;
+    }
+    const char *errmsg = lua_pushfstring(L, "Bad index: %d with self.len=%d", index, len);
+    luaL_argerror(L, 2, errmsg);
+    return 0;
+}
+
 lua_Number *
 slice_poke(Slice *self, int index)
 {
@@ -61,9 +86,10 @@ slice_poke(Slice *self, int index)
 static int
 mt_index(lua_State *L)
 {
-    Slice *self = check_self(L);
+    const Slice *self = check_self(L);
     if (lua_isnumber(L, 2)) {
-        lua_pushnumber(L, slice_peek(self, luaL_checkint(L, 2)));
+        int index = resolve_index(L, self, luaL_checkint(L, 2));
+        lua_pushnumber(L, slice_peek(self, index));
         return 1;
     } else if (lua_isstring(L, 2)) {
         size_t len;
@@ -86,9 +112,8 @@ static int
 mt_newindex(lua_State *L)
 {
     Slice *self  = check_self(L);
-    int    index = luaL_checkint(L, 2);
-    assertf(L, 1 <= index && index <= self->len, "Bad index: %d (self.len=%d)", index, self->len);
-    *slice_poke(self, index - 1) = luaL_checknumber(L, 3);
+    int    index = resolve_index(L, self, luaL_checkint(L, 2));
+    *slice_poke(self, index) = luaL_checknumber(L, 3);
     return 0;
 }
 
@@ -100,9 +125,9 @@ mt_tostring(lua_State *L)
     luaL_buffinit(L, &buffer);
     luaL_addchar(&buffer, '[');
     for (int i = 0; i < self->len; i++) {
+        // `i` is guaranteed to be in range, hence we do not check.
         lua_pushnumber(L, slice_peek(self, i));
         luaL_addvalue(&buffer);
-        lua_pop(L, 1);
         if (i < self->len - 1) {
             luaL_addstring(&buffer, ", ");
         }
@@ -127,12 +152,13 @@ slice_mt[] = {
     {NULL, NULL},
 };
 
+// ( "matrix" ) -> ( slice )
 int
 luaopen_slice(lua_State *L)
 {
     luaL_newmetatable(L, SLICE_MTNAME); // [ mt ]
     luaL_register(L, NULL, slice_mt);   // [ mt ] ; register `slice_mt` into `mt`
-    lua_pop(L, 1); // []
+    lua_pop(L, 1);                      // []
     luaL_register(L, SLICE_LIBNAME, slice_lib); // [ slice ]
     return 1;
 }

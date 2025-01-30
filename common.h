@@ -4,6 +4,8 @@
 #include <lua.h>
 #include <lauxlib.h>
 
+#include <stdbool.h>
+
 // Taken from Ginger Bill. Easier to grep.
 #define cast(T) (T)
 
